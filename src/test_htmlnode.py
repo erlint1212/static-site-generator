@@ -75,20 +75,18 @@ class TestHTMLNode(unittest.TestCase):
                     "italic" : "i",
                     "image" : "img",
                     "link" : "a",
-                    "code" : "```"
+                    "code" : "code"
                 }
         for text_type in supported_tags.keys():
             with self.subTest():
                 node = text_node_to_html_node(TextNode(f"testing {text_type}", text_type))
-                if text_type not in ["link", "image", "code"]:
+                if text_type not in ["link", "image"]:
                     self.assertEqual(node.TO_HTML(), LeafNode(supported_tags[text_type], f"testing {text_type}").TO_HTML())
                 match text_type:
                     case "link":
                         self.assertEqual(node.TO_HTML(), f"<a href=\"None\">testing {text_type}</a>")
                     case "image":
                         self.assertEqual(node.TO_HTML(), f"<img src=\"None\" alt=\"testing {text_type}\">")
-                    case "code":
-                        self.assertEqual(node.TO_HTML(), f"```testing {text_type}```")
 
 if __name__ == "__main__":
     unittest.main()

@@ -22,13 +22,11 @@ class HTMLNode():
         return output[:-1]
 
     def _TO_HTML_CONVERTER(self, props_html):
-        if self.tag not in ["img", "code"]:
+        if self.tag not in ["img"]:
             return f"<{self.tag}" + props_html + ">" + self.value + f"</{self.tag}>"
         match self.tag:
             case "img":
                 return f"<img" + props_html + ">"
-            case "code":
-                return f"```{self.value}```"
             case _:
                 raise Exception("Tag not supported")
 
