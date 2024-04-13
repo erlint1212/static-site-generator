@@ -1,5 +1,13 @@
 import re
 valid_text_types = ("text", "bold", "italic", "code", "link", "image")
+# Why use this system? Seems ineficent, see later on i course to see it usage.
+text_type_text = "text"
+text_type_bold = "bold"
+text_type_italic = "italic"
+text_type_code = "code"
+text_type_link = "link"
+text_type_image = "image"
+
 
 class TextNode:
     def __init__(self, TEXT, TEXT_TYPE, URL=None):
@@ -37,7 +45,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return output_list
 
 def extract_markdown_images(text):
-    matches = re.findall(r"\!\[\w+\]\([^\)]*\)", text)
+    matches = re.findall(r"\!\[.*?\]\(.*?\)", text)
     if matches == []:
         return ""
     output = []
@@ -48,7 +56,7 @@ def extract_markdown_images(text):
     return output
 
 def extract_markdown_links(text):
-    matches = re.findall(r"(?!\!)\[\w+\]\([^\)]*\)", text)
+    matches = re.findall(r"[^\!]\[.*?\]\(.*?\)", text)
     if matches == []:
         return ""
     output = []
@@ -58,8 +66,70 @@ def extract_markdown_links(text):
         output.append((text[0][1:], link[0][1:]))
     return output
 
-     
-        
+def split_nodes_image(old_nodes):
+    if old_nodes == [] or type(old_nodes) != list:
+        return []
+    
+    new_textnodes = []
+    for old_textnode in old_nodes:
+        # Inefficent? Make new func to check if empty?
+        if repr(old_textnode) == "TextNode(None, None, None)":
+            continue
+        image_list = extract_markdown_images(old_textnode.text)
+        if image_list == []:
+            new_textnodes.append(old_textnode)
+            continue
+        original_text = old_textnode.text
+        for image_tup in image_list:
+            if type(original_text) != list:
+                original_text = original_text.split(f"![{image_tup[0]}]({image_tup[1]})", 1)
+            else:
+                new_split = original_text[-1].split(f"![{image_tup[0]}]({image_tup[1]})", 1)
+                original_text.pop()
+                original_text += new_split
+        if original_text[-1] == "":
+            original_text.pop()
+        for i, chunk in enumerate(original_text):
+            new_text_node = TextNode(chunk, text_type_text) 
+            new_textnodes.append(new_text_node)
+            if i < len(image_list):
+                new_image_node = TextNode(image_list[i][0], text_type_image,image_list[i][1]) 
+                new_textnodes.append(new_image_node)
+    return new_textnodes
+
+
+def split_nodes_link(old_nodes):
+    if old_nodes == [] or type(old_nodes) != list:
+        return []
+    
+    new_textnodes = []
+    for old_textnode in old_nodes:
+        # Inefficent? Make new func to check if empty?
+        if repr(old_textnode) == "TextNode(None, None, None)":
+            continue
+        link_list = extract_markdown_links(old_textnode.text)
+        if link_list == []:
+            new_textnodes.append(old_textnode)
+            continue
+        original_text = old_textnode.text
+        for link_tup in link_list:
+            if type(original_text) != list:
+                original_text = original_text.split(f"[{link_tup[0]}]({link_tup[1]})", 1)
+            else:
+                new_split = original_text[-1].split(f"[{link_tup[0]}]({link_tup[1]})", 1)
+                original_text.pop()
+                original_text += new_split
+        if original_text[-1] == "":
+            original_text.pop()
+        for i, chunk in enumerate(original_text):
+            new_text_node = TextNode(chunk, text_type_text) 
+            new_textnodes.append(new_text_node)
+            if i < len(link_list):
+                new_image_node = TextNode(link_list[i][0], text_type_link,link_list[i][1]) 
+                new_textnodes.append(new_image_node)
+    print(new_textnodes)
+    return new_textnodes
+    
 
 
 

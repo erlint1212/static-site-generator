@@ -4,6 +4,8 @@ from textnode import *
 
 
 class TestTextNode(unittest.TestCase):
+    maxDiff = None
+
     def test_eq(self):
         node = TextNode("This is a text node", "bold")
         node2 = TextNode("This is a text node", "bold")
@@ -49,6 +51,39 @@ class TestTextNode(unittest.TestCase):
         text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
         output = extract_markdown_links(text)
         self.assertEqual(output, [("link", "https://www.example.com"), ("another", "https://www.example.com/another")])
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+                "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+                text_type_text,
+                )
+        new_nodes = split_nodes_image([node])
+        expected_output = [
+                TextNode("This is text with an ", text_type_text),
+                TextNode("image", text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+                TextNode(" and another ", text_type_text),
+                TextNode(
+                    "second image", text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+                    ),
+                ]
+        self.assertEqual(new_nodes, expected_output)
+
+    def test_split_nodes_link(self):
+        node = TextNode(
+                "This is text with an [image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another [second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+                text_type_text,
+                )
+        new_nodes = split_nodes_link([node])
+        expected_output = [
+                TextNode("This is text with an ", text_type_text),
+                TextNode("image", text_type_link, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+                TextNode(" and another ", text_type_text),
+                TextNode(
+                    "second image", text_type_link, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+                    ),
+                ]
+        self.assertEqual(new_nodes, expected_output)
+
 
 if __name__ == "__main__":
     unittest.main()
