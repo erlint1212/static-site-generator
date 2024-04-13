@@ -8,6 +8,8 @@ text_type_code = "code"
 text_type_link = "link"
 text_type_image = "image"
 
+valid_delims = {"**" : text_type_bold, "*" : text_type_italic, "`" : text_type_code, "```" : text_type_code}
+
 
 class TextNode:
     def __init__(self, TEXT, TEXT_TYPE, URL=None):
@@ -73,7 +75,7 @@ def split_nodes_image(old_nodes):
     new_textnodes = []
     for old_textnode in old_nodes:
         # Inefficent? Make new func to check if empty?
-        if repr(old_textnode) == "TextNode(None, None, None)":
+        if old_textnode.text in [None, "", " "]:
             continue
         image_list = extract_markdown_images(old_textnode.text)
         if image_list == []:
@@ -89,6 +91,10 @@ def split_nodes_image(old_nodes):
                 original_text += new_split
         if original_text[-1] == "":
             original_text.pop()
+        if type(original_text) == str:
+            new_textnodes.append(old_textnode)
+            continue
+
         for i, chunk in enumerate(original_text):
             new_text_node = TextNode(chunk, text_type_text) 
             new_textnodes.append(new_text_node)
@@ -105,7 +111,7 @@ def split_nodes_link(old_nodes):
     new_textnodes = []
     for old_textnode in old_nodes:
         # Inefficent? Make new func to check if empty?
-        if repr(old_textnode) == "TextNode(None, None, None)":
+        if old_textnode.text in [None, "", " "]:
             continue
         link_list = extract_markdown_links(old_textnode.text)
         if link_list == []:
@@ -121,15 +127,42 @@ def split_nodes_link(old_nodes):
                 original_text += new_split
         if original_text[-1] == "":
             original_text.pop()
+
+        if type(original_text) == str:
+            new_textnodes.append(old_textnode)
+            continue
+        
         for i, chunk in enumerate(original_text):
             new_text_node = TextNode(chunk, text_type_text) 
             new_textnodes.append(new_text_node)
             if i < len(link_list):
                 new_image_node = TextNode(link_list[i][0], text_type_link,link_list[i][1]) 
                 new_textnodes.append(new_image_node)
-    print(new_textnodes)
     return new_textnodes
     
+def text_to_textnodes(text):
+    split_list = []
+    for delim in valid_delims.keys():
+        if split_list == []:
+            split_list = split_nodes_delimiter(text, delim, valid_delims[delim])
+            continue
+        new_list = []
+        for i, node in enumerate(split_list):
+            if node.text_type != text_type_text:
+                new_list.append(node)
+                continue
+            current_node_split = split_nodes_delimiter(node.text, delim, valid_delims[delim])
+            if len(current_node_split) == 1:
+                new_list.append(node)
+                continue
+            for new_node in current_node_split:
+                new_list.append(new_node)
+        split_list = new_list
+    split_list = split_nodes_image(split_list) 
+    split_list = split_nodes_link(split_list)
+    return split_list
+
+
 
 
 
