@@ -27,7 +27,7 @@ class TestTextNode(unittest.TestCase):
 
     # split_nodes_delimter func tests
     def test_split_node_expected(self):
-        delimiter_tests = {"code" : "`", "bold":"**", "italic":"*"}
+        delimiter_tests = {"code" : "`","code" : "```", "bold":"**", "italic":"*"}
         for text_type in delimiter_tests.keys():
             with self.subTest():    
                 node = TextNode(f"This is text with a {delimiter_tests[text_type]}code block{delimiter_tests[text_type]} word", "text")
@@ -100,6 +100,57 @@ class TestTextNode(unittest.TestCase):
         text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
         output = text_to_textnodes(text)
         self.assertEqual(output, expected_output)
+
+    def test_markdown_to_blocks(self):
+        expected_output = [
+                [
+                    "# This is a heading", 
+                    "This is a paragraph of text. It has some **bold** and *italic* words inside of it.", 
+                    "* This is a list item\n* This is another list item"
+                ],
+                [
+                    "This is **bolded** paragraph",
+                    "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+                    "* This is a list\n* with items"
+                ]
+            ]
+        inputs = [
+                    """
+                    # This is a heading
+
+                    This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+                    * This is a list item
+                    * This is another list item
+                    """, """
+                    This is **bolded** paragraph
+
+                    This is another paragraph with *italic* text and `code` here
+                    This is the same paragraph on a new line
+
+                    * This is a list
+                    * with items
+                    """
+                ]
+        for i, input in enumerate(inputs):
+            with self.subTest():    
+                output = markdown_to_blocks(input)
+                self.assertEqual(output, expected_output[i])
+    
+    def test_block_to_block_type(self):
+        input_expected_output = {
+                "##### Header test" : block_type_heading,
+                "```\n test code \n ```" : block_type_code,
+                "> 4chan\n> quotes\n>are all i see" : block_type_quote,
+                "* thing1\n* thing2\n* thing3" : block_type_unordered_list,
+                "- thing1\n- thing2\n- thing3" : block_type_unordered_list,
+                "1. thing1\n2. thing2\n3. thing3" : block_type_ordered_list,
+                "plain old text" : block_type_paragraph
+                }
+        for test in input_expected_output.keys():
+            with self.subTest():
+                output = block_to_block_type(test)
+                self.assertEqual(output, input_expected_output[test])
 
 if __name__ == "__main__":
     unittest.main()

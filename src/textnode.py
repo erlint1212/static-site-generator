@@ -8,6 +8,13 @@ text_type_code = "code"
 text_type_link = "link"
 text_type_image = "image"
 
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_unordered_list = "unordered_list"
+block_type_ordered_list = "ordered_list"
+
 valid_delims = {"**" : text_type_bold, "*" : text_type_italic, "`" : text_type_code, "```" : text_type_code}
 
 
@@ -162,7 +169,43 @@ def text_to_textnodes(text):
     split_list = split_nodes_link(split_list)
     return split_list
 
+    lines = doc_content.split("\n")
+    return "\n".join(new_lines)
 
 
+def remove_asterisks_from_words(line):
+    words = line.split()
 
+    def clean_word(word):
+        return word.strip("*") if len(word) > 1 else word
 
+    cleaned_words = filter(lambda word: len(word) > 0, map(clean_word, words))
+    return " ".join(cleaned_words)
+
+def markdown_to_blocks(markdown):
+    initial_split = markdown.split("\n\n")
+    split_extra_newlines = [x.strip().split("\n") for x in initial_split]
+    flatten_split = [x[0] if len(x)==1 else x for x in split_extra_newlines]
+    for i, block in enumerate(flatten_split):
+        if type(block) == str:
+            flatten_split[i] = block.strip() 
+            continue
+        for k, line in enumerate(block):
+            flatten_split[i][k] = line.strip() 
+        flatten_split[i] = "\n".join(flatten_split[i])    
+    return flatten_split
+
+def block_to_block_type(markdown_block):
+    if re.findall(r"^#{1,6}\s", markdown_block) != []:
+        return block_type_heading
+    if markdown_block[:3] == "```" and markdown_block[-3:] == "```":
+        return block_type_code
+    if any([False if x[0] == ">" else True for x in markdown_block.splitlines()]) == False:
+        return block_type_quote
+    if any([False if x[0] in ["*", "-"] else True for x in markdown_block.splitlines()]) == False:
+        return block_type_unordered_list
+    if any([False if x[:2] == f"{i+1}."  else True for i, x in enumerate(markdown_block.splitlines())]) == False:
+        return block_type_ordered_list
+
+    return block_type_paragraph
+    
