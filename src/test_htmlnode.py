@@ -106,12 +106,11 @@ class TestHTMLNode(unittest.TestCase):
                 <li>first</li>
                 <li>second</li>
             </ol>
-        </div>"
+        </div>
         """
         input = "# This is a test\n\n**This is a test list**\n\n* first\n* second\n\n*italic*\n\n1. first\n2. second"
         output = markdown_to_html_node(input)
-        # add [:-1] at the end because the expression ends with \" for some reaason, hotfix
-        self.assertEqual(output.TO_HTML(), "".join(expected_output.splitlines()).replace("  ", "")[:-1])
+        self.assertEqual(output.TO_HTML(), "".join(expected_output.splitlines()).replace("  ", ""))
 
 if __name__ == "__main__":
     unittest.main()
