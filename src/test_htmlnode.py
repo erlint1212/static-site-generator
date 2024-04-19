@@ -88,5 +88,30 @@ class TestHTMLNode(unittest.TestCase):
                     case "image":
                         self.assertEqual(node.TO_HTML(), f"<img src=\"None\" alt=\"testing {text_type}\">")
 
+    def test_markdown_to_html_node(self):
+        expected_output = """
+        <div>
+            <h1>This is a test</h1>
+            <p>
+                <b>This is a test list</b>
+            </p>
+            <ul>
+                <li>first</li>
+                <li>second</li>
+            </ul>
+            <p>
+                <i>italic</i>
+            </p>
+            <ol>
+                <li>first</li>
+                <li>second</li>
+            </ol>
+        </div>"
+        """
+        input = "# This is a test\n\n**This is a test list**\n\n* first\n* second\n\n*italic*\n\n1. first\n2. second"
+        output = markdown_to_html_node(input)
+        # add [:-1] at the end because the expression ends with \" for some reaason, hotfix
+        self.assertEqual(output.TO_HTML(), "".join(expected_output.splitlines()).replace("  ", "")[:-1])
+
 if __name__ == "__main__":
     unittest.main()

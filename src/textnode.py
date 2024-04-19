@@ -8,12 +8,12 @@ text_type_code = "code"
 text_type_link = "link"
 text_type_image = "image"
 
-block_type_paragraph = "paragraph"
-block_type_heading = "heading"
+block_type_paragraph = "p"#"paragraph"
+block_type_heading = "h"#"heading"
 block_type_code = "code"
-block_type_quote = "quote"
-block_type_unordered_list = "unordered_list"
-block_type_ordered_list = "ordered_list"
+block_type_quote = "blockquote"#"quote"
+block_type_unordered_list = "ul" #"unordered_list"
+block_type_ordered_list = "ol"#"ordered_list"
 
 valid_delims = {"**" : text_type_bold, "*" : text_type_italic, "`" : text_type_code, "```" : text_type_code}
 
@@ -197,15 +197,18 @@ def markdown_to_blocks(markdown):
 
 def block_to_block_type(markdown_block):
     if re.findall(r"^#{1,6}\s", markdown_block) != []:
-        return block_type_heading
+        #heading_number = len(re.findall(r"^#{1,6}", markdown_block)[0]) 
+        return block_type_heading #+ f"{heading_number}"
     if markdown_block[:3] == "```" and markdown_block[-3:] == "```":
         return block_type_code
     if any([False if x[0] == ">" else True for x in markdown_block.splitlines()]) == False:
         return block_type_quote
-    if any([False if x[0] in ["*", "-"] else True for x in markdown_block.splitlines()]) == False:
+    if any([False if x[:2] in ["* ", "- "] else True for x in markdown_block.splitlines()]) == False:
         return block_type_unordered_list
-    if any([False if x[:2] == f"{i+1}."  else True for i, x in enumerate(markdown_block.splitlines())]) == False:
+    if any([False if x[:3] == f"{i+1}. "  else True for i, x in enumerate(markdown_block.splitlines())]) == False:
         return block_type_ordered_list
 
     return block_type_paragraph
+
+
     
