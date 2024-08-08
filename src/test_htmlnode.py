@@ -97,19 +97,28 @@ class TestHTMLNode(unittest.TestCase):
             </p>
             <ul>
                 <li>first</li>
-                <li>second</li>
+                <li>Test <b>second</b></li>
+                <li>Test <i>third</i></li>
             </ul>
             <p>
                 <i>italic</i>
             </p>
             <ol>
                 <li>first</li>
-                <li>second</li>
+                <li><b>second</b></li>
+                <li><i>third</i></li>
             </ol>
+            <blockquote>
+                Test blockquote
+            </blockquote>
+            <code>
+                def Main();
+            </code>
         </div>
         """
-        input = "# This is a test\n\n**This is a test list**\n\n* first\n* second\n\n*italic*\n\n1. first\n2. second"
+        input = "# This is a test\n\n**This is a test list**\n\n* first\n* Test **second**\n* Test *third*\n\n*italic*\n\n1. first\n2. **second**\n3. *third*\n> Test blockquote\n\n```def Main();```"
         output = markdown_to_html_node(input)
+        print(output.TO_HTML())
         self.assertEqual(output.TO_HTML(), "".join(expected_output.splitlines()).replace("  ", ""))
 
 if __name__ == "__main__":

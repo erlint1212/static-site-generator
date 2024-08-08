@@ -23,6 +23,7 @@ class HTMLNode():
 
     def _TO_HTML_CONVERTER(self, props_html):
         if self.tag not in ["img"]:
+            print(self.value)
             return f"<{self.tag}" + props_html + ">" + self.value + f"</{self.tag}>"
         match self.tag:
             case "img":
@@ -80,6 +81,11 @@ class ParentNode(HTMLNode):
         return self._TO_HTML_CONVERTER(props_html)
 
 def text_node_to_html_node(text_node):
+    if isinstance(text_node, list):
+        text_node_list = []
+        for item in text_node:
+            text_node_list.append(text_node_to_html_node(item))
+        return text_node_list
     if not isinstance(text_node, TextNode):
         raise ValueError("Input must be a TextNode")
     match text_node.text_type:
@@ -112,17 +118,21 @@ def block_code_to_html_node(block):
         
 def block_quote_to_html_node(block):
     split_list = block.splitlines()
-    output = "\n".join([x.lstrip(">") for x in split_list])
-    return ParentNode(block_type_quote, text_node_to_html_node(output))
+    output = "\n".join([x.lstrip(">").strip() for x in split_list])
+    return ParentNode(block_type_quote, [text_node_to_html_node(text_to_textnodes(output)[0])])
 
 # ul and ol are horribly writen, rewrite later (textnode never needs to be called as i only need the text, and I'm breaking function)
 # convention making a leafnode outside the make leafnode funckit, breaking the fuctional programing paragrim ?
 
 def block_unordered_list_to_html_node(block):
     split_list = block.splitlines()
-    output = [text_to_textnodes(x.lstrip("*- "))[0].text for x in split_list]
-    output_2 = [LeafNode("li", x) for x in output]
-    return ParentNode(block_type_unordered_list, output_2)
+    print(split_list)
+    output = [text_node_to_html_node(text_to_textnodes(x[2:])) for x in split_list]
+    print("Ouput ul: ", output)
+    output_2 = LeafNode("li", output)#[LeafNode("li", x) for x in output] # LeafNode("li", output) [LeafNode("li", x) for x in output]
+    print("Ouput2: ",output_2)
+    print("ParentNode ul: ", ParentNode(block_type_unordered_list, [output_2]))
+    return ParentNode(block_type_unordered_list, [output_2])
 
 def block_ordered_list_to_html_node(block):
     split_list = block.splitlines()
