@@ -116,9 +116,8 @@ class TestHTMLNode(unittest.TestCase):
             </code>
         </div>
         """
-        input = "# This is a test\n\n**This is a test list**\n\n* first\n* Test **second**\n* Test *third*\n\n*italic*\n\n1. first\n2. **second**\n3. *third*\n> Test blockquote\n\n```def Main();```"
+        input = "# This is a test\n\n**This is a test list**\n\n* first\n* Test **second**\n* Test *third*\n\n*italic*\n\n1. first\n2. **second**\n3. *third*\n\n> Test blockquote\n\n```def Main();```"
         output = markdown_to_html_node(input)
-        print(output.TO_HTML())
         self.assertEqual(output.TO_HTML(), "".join(expected_output.splitlines()).replace("  ", ""))
 
 if __name__ == "__main__":

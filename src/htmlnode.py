@@ -23,7 +23,15 @@ class HTMLNode():
 
     def _TO_HTML_CONVERTER(self, props_html):
         if self.tag not in ["img"]:
-            print(self.value)
+            if isinstance(self.value, list):
+                output = ""
+                for item in self.value:
+                    output += item._TO_HTML_CONVERTER(props_html)
+
+                #return output 
+                return f"<{self.tag}" + props_html + ">" + output + f"</{self.tag}>"
+            if self.tag == None:
+                return self.value 
             return f"<{self.tag}" + props_html + ">" + self.value + f"</{self.tag}>"
         match self.tag:
             case "img":
@@ -45,6 +53,7 @@ class LeafNode(HTMLNode):
             raise ValueError("Value is None, LeafNode requires a valid value")
         if self.tag == None:
             return self.value
+
         
         props_html = ""
         if self.props != None:
@@ -70,6 +79,11 @@ class ParentNode(HTMLNode):
             if isinstance(child, ParentNode):
                 output += child.TO_HTML()
                 continue
+            """
+            if isinstance(child, list):
+                for item in child:
+                    output += item.TO_HTML()
+            """
             output += child.TO_HTML() 
 
         self.value = output
@@ -126,18 +140,15 @@ def block_quote_to_html_node(block):
 
 def block_unordered_list_to_html_node(block):
     split_list = block.splitlines()
-    print(split_list)
     output = [text_node_to_html_node(text_to_textnodes(x[2:])) for x in split_list]
-    print("Ouput ul: ", output)
-    output_2 = LeafNode("li", output)#[LeafNode("li", x) for x in output] # LeafNode("li", output) [LeafNode("li", x) for x in output]
-    print("Ouput2: ",output_2)
-    print("ParentNode ul: ", ParentNode(block_type_unordered_list, [output_2]))
-    return ParentNode(block_type_unordered_list, [output_2])
+    output_2 = [LeafNode("li", x) for x in output]#[LeafNode("li", x) for x in output] # LeafNode("li", output) [LeafNode("li", x) for x in output]
+    return ParentNode(block_type_unordered_list, output_2)
 
 def block_ordered_list_to_html_node(block):
     split_list = block.splitlines()
-    output = [text_to_textnodes(x.lstrip("123456789. "))[0].text for x in split_list]
-    output_2 = [LeafNode("li", x) for x in output]
+    output = [text_node_to_html_node(text_to_textnodes(x[3:])) for x in split_list]
+    output_2 = [LeafNode("li", x) for x in output]#[LeafNode("li", x) for x in output] # LeafNode("li", output) [LeafNode("li", x) for x in output]
+    
     return ParentNode(block_type_ordered_list, output_2)
 
 

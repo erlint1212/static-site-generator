@@ -148,7 +148,6 @@ def split_nodes_link(old_nodes):
     return new_textnodes
     
 def text_to_textnodes(text):
-    print("Text to texnode: ", text)
     split_list = []
     for delim in valid_delims.keys():
         if split_list == []:
@@ -168,7 +167,6 @@ def text_to_textnodes(text):
         split_list = new_list
     split_list = split_nodes_image(split_list) 
     split_list = split_nodes_link(split_list)
-    print("Split list: ", split_list)
     return split_list
 
 
