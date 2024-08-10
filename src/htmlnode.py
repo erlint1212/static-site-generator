@@ -121,19 +121,19 @@ def text_node_to_html_node(text_node):
             raise Exception(f"Text type \"{text_node.text_type}\" not supported")
 
 def block_paragraph_to_html_node(block):
-    return ParentNode(block_type_paragraph, [text_node_to_html_node(text_to_textnodes(block)[0])]) 
+    return ParentNode(block_type_paragraph, text_node_to_html_node(text_to_textnodes(block))) 
 
 def block_heading_to_html_node(block):
     heading_number = len(re.findall(r"^#{1,6}", block)[0]) 
-    return ParentNode(block_type_heading + f"{heading_number}", [text_node_to_html_node(text_to_textnodes(block.lstrip("# "))[0])]) 
+    return ParentNode(block_type_heading + f"{heading_number}", text_node_to_html_node(text_to_textnodes(block.lstrip("# ")))) 
 
 def block_code_to_html_node(block):
-    return ParentNode(block_type_code, [text_node_to_html_node(text_to_textnodes(block.strip("`"))[0])])
+    return ParentNode(block_type_code, text_node_to_html_node(text_to_textnodes(block.strip("`"))))
         
 def block_quote_to_html_node(block):
     split_list = block.splitlines()
     output = "\n".join([x.lstrip(">").strip() for x in split_list])
-    return ParentNode(block_type_quote, [text_node_to_html_node(text_to_textnodes(output)[0])])
+    return ParentNode(block_type_quote, text_node_to_html_node(text_to_textnodes(output)))
 
 # ul and ol are horribly writen, rewrite later (textnode never needs to be called as i only need the text, and I'm breaking function)
 # convention making a leafnode outside the make leafnode funckit, breaking the fuctional programing paragrim ?

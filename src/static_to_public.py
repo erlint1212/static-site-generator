@@ -41,9 +41,7 @@ def recursive_copy(src, dest):
             print('Failed to copy %s. Reason: %s' % (file_path, e))
 
 def static_to_public():
-    #os.chdir(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     path = os.getcwd()
-    #print(path)
     static_dir = path + "/" + "static"
     public_dir = path + "/" + "public"
     check_if_folders_exist(static_dir, public_dir)
